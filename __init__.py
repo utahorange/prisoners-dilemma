@@ -29,8 +29,8 @@ def main():
         0:always_defect,
         1:always_cooperate,
         2:random_defect,
-        3:tit_for_tat
-        4:friedman
+        3:tit_for_tat,
+        4:friedman,
         5:joss
     }
     message_text =  '''
@@ -90,7 +90,7 @@ def tit_for_tat(history, player):
     if(len(history)==0):
         return(1)
     else:
-        return(history[-1][player%1]) # fix this, this wrong
+        return(history[-1][player^1]) # the idea of player^1 is to get 0 if 1, 1 if 0
     
 def random_defect(history, player):
     return(random.randint(0, 1))
@@ -102,22 +102,12 @@ def friedman(history, player):
         return(0)
     else:
         return(1)
-def joss(history, player):
+
+def joss(history, player): # greedy tit for tat
     if(len(history)==0):
         return(1)
     else:
-        if(history[-1][player%1]==1): # fix this, this wrong
-            # 10% of time return defect anyways
-    
-
-
-
-            
-
-
-
-
-
-
-
-
+        if(history[-1][player^1]==1): 
+            return (0 if random.randint(0,9)==0 else 1)
+        else:
+            return 0
