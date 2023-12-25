@@ -90,7 +90,7 @@ def tit_for_tat(history, player):
     if(len(history)==0):
         return(1)
     else:
-        return(history[-1][player%1])
+        return(history[-1][player%1]) # fix this, this wrong
     
 def random_defect(history, player):
     return(random.randint(0, 1))
@@ -102,7 +102,14 @@ def friedman(history, player):
         return(0)
     else:
         return(1)
-def joss()
+def joss(history, player):
+    if(len(history)==0):
+        return(1)
+    else:
+        if(history[-1][player%1]==1): # fix this, this wrong
+            return 
+    
+
 
 
             
