@@ -107,7 +107,7 @@ def joss(history, player):
         return(1)
     else:
         if(history[-1][player%1]==1): # fix this, this wrong
-            return 
+            # 10% of time return defect anyways
     
 
 
