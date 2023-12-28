@@ -21,10 +21,7 @@ from termcolor import colored
 def main():
     num_pattern = re.compile("^[0-9]+$")
     alpha_pattern = re.compile("^[A-Za-z]+$")
-    global NUM_TURNS; NUM_TURNS = ""
-    strat_1=""
-    strat_2=""
-
+    global NUM_TURNS; 
     global STRATEGIES;STRATEGIES={
         0:always_defect,
         1:always_cooperate,
@@ -33,46 +30,58 @@ def main():
         4:friedman,
         5:joss
     }
-    message_text =  '''
-                    0 - Always Defect
-                    1 - Always Cooperate
-                    2 - Random Defect
-                    3 - Tit for Tat - will start coop, then do whatever opponent did last time
-                    4 - Friedman - if opponent defects once, will keep defecting for rest of game
-                    5 - Joss - coop first, then tit for tat but defects an additional 10% of the time
-                    '''
+    message_text ='''
+    0 - Always Defect
+    1 - Always Cooperate
+    2 - Random Defect
+    3 - Tit for Tat - will start coop, then do whatever opponent did last time
+    4 - Friedman - if opponent defects once, will keep defecting for rest of game
+    5 - Joss - coop first, then tit for tat but defects an additional 10% of the time
+    '''
+    keep_going = True
     print("Welcome to a simulation of the prisoner's dilemma")
-    while(not(num_pattern.match(str(NUM_TURNS)))):
-        NUM_TURNS = int(input("How many turns do you want to simulate? [default 100]"))
-    while(not(num_pattern.match(str(strat_1)))):
-        strat_1 = int(input(message_text))
-    while(not(num_pattern.match(str(strat_2)))):
-        strat_2 = int(input(message_text))
-    simulate(NUM_TURNS, strat_1, strat_2)
     
-def simulate(NUM_TURNS, strat_1, strat_2):
-    print("Simulating for " + str(NUM_TURNS) + " turns of "+ str(strat_1)+ " vs "+ str(strat_2))
-    score_1=0;score_2=0
+    while keep_going:
+        NUM_TURNS = ""
+        strat_0=""
+        strat_1=""
+        while(not(num_pattern.match(str(NUM_TURNS)))):
+            NUM_TURNS = input("How many turns do you want to simulate? [default 100]")
+        while(not(num_pattern.match(str(strat_0)))):
+            strat_0 = input(message_text)
+        while(not(num_pattern.match(str(strat_1)))):
+            strat_1 = input(message_text)
+        NUM_TURNS = int(NUM_TURNS)
+        strat_0 = int(strat_0)
+        strat_1 = int(strat_1)
+        simulate(NUM_TURNS, strat_0, strat_1)
+        k = input("Run another simulation? [y/Y to keep going, any char to stop]")
+        if(not(k == 'y' or k =='Y')):
+            keep_going = False
+    
+def simulate(NUM_TURNS, strat_0, strat_1):
+    print("Simulating for " + str(NUM_TURNS) + " turns of "+ STRATEGIES[strat_0].__name__ + " vs "+ STRATEGIES[strat_1].__name__)
+    score_0=0;score_1=0
     history = []
     print("P1 | P2")
     for i in range(NUM_TURNS):
+        action_0 = STRATEGIES[strat_0](history, 0)
         action_1 = STRATEGIES[strat_1](history, 1)
-        action_2 = STRATEGIES[strat_2](history, 2)
-        if(action_1==action_2):
-            if(action_1==1): # both coop
+        if(action_0==action_1):
+            if(action_0==1): # both coop
+                score_0+=3
                 score_1+=3
-                score_2+=3
             else: # both defected
+                score_0+=1
                 score_1+=1
-                score_2+=1
-        elif(action_1>action_2): # player 1 coop, player 2 defected
-            score_2+=5
-        else: # player 1 defected, player 2 coop
+        elif(action_0>action_1): # player 0 coop, player 1 defected
             score_1+=5
-        print(" "+str(action_1) + " | "+ str(action_2))
-        history.append((action_1, action_2))
-    print("Strategy " + str(strat_1) +": "+str(score_1))
-    print("Strategy "+str(strat_2)+": "+str(score_2))
+        else: # player 0 defected, player 1 coop
+            score_0+=5
+        print(" "+str(action_0) + " | "+ str(action_1))
+        history.append((action_0, action_1))
+    print("Strategy " + STRATEGIES[strat_0].__name__ +": "+str(score_0))
+    print("Strategy "+STRATEGIES[strat_1].__name__+": "+str(score_1))
 
 
 # strategies - returns 0 (defect) or 1 (cooperate)
@@ -101,7 +110,7 @@ def friedman(history, player):
     else:
         return(1)
 
-def joss(history, player): # greedy tit for tat
+def joss(history, player): # greedy tit for tat, randomly defects 10% of the time
     if(len(history)==0):
         return(1)
     else:
