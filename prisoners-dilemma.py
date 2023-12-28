@@ -1,21 +1,4 @@
-# make sure color module is imported
-import importlib.util
-import sys
-
-name = 'termcolor'
-
-if name in sys.modules:
-    print(f"{name!r} already in sys.modules")
-elif (spec := importlib.util.find_spec(name)) is not None:
-    # If you choose to perform the actual import ...
-    module = importlib.util.module_from_spec(spec)
-    sys.modules[name] = module
-    spec.loader.exec_module(module)
-else:
-    print(f"can't find the {name!r} module")
-    exit()
-
-import random, re, os
+import random, re
 from termcolor import colored
 
 def main():
@@ -31,12 +14,12 @@ def main():
         5:joss
     }
     message_text ='''
-    0 - Always Defect
-    1 - Always Cooperate
-    2 - Random Defect
-    3 - Tit for Tat - will start coop, then do whatever opponent did last time
-    4 - Friedman - if opponent defects once, will keep defecting for rest of game
-    5 - Joss - coop first, then tit for tat but defects an additional 10% of the time
+    0 - Always Defect - Only defects.
+    1 - Always Cooperate - Only cooperates.
+    2 - Random Defect - Defects 50% of the time.
+    3 - Tit for Tat - Will start by cooperating, then will do whatever opponent did last time.
+    4 - Friedman - If the opponent defects once, it will keep defecting for rest of game.
+    5 - Joss - Tit for Tat but defects an additional 10% of the time.
     '''
     keep_going = True
     print("Welcome to a simulation of the prisoner's dilemma")
@@ -47,9 +30,9 @@ def main():
         strat_1=""
         while(not(num_pattern.match(str(NUM_TURNS)))):
             NUM_TURNS = input("How many turns do you want to simulate? [default 100]")
-        while(not(num_pattern.match(str(strat_0)))):
+        while(not(num_pattern.match(str(strat_0)) and int(strat_0) in STRATEGIES)):
             strat_0 = input(message_text)
-        while(not(num_pattern.match(str(strat_1)))):
+        while(not(num_pattern.match(str(strat_1)) and int(strat_1) in STRATEGIES)):
             strat_1 = input(message_text)
         NUM_TURNS = int(NUM_TURNS)
         strat_0 = int(strat_0)
@@ -80,8 +63,8 @@ def simulate(NUM_TURNS, strat_0, strat_1):
             score_0+=5
         print(" "+str(action_0) + " | "+ str(action_1))
         history.append((action_0, action_1))
-    print("Strategy " + STRATEGIES[strat_0].__name__ +": "+str(score_0))
-    print("Strategy "+STRATEGIES[strat_1].__name__+": "+str(score_1))
+    print("Strategy " + STRATEGIES[strat_0].__name__ +": "+str(score_0)+"/"+str(NUM_TURNS*5))
+    print("Strategy "+STRATEGIES[strat_1].__name__+": "+str(score_1)+"/"+str(NUM_TURNS*5))
 
 
 # strategies - returns 0 (defect) or 1 (cooperate)
@@ -110,7 +93,7 @@ def friedman(history, player):
     else:
         return(1)
 
-def joss(history, player): # greedy tit for tat, randomly defects 10% of the time
+def joss(history, player): # greedy tit for tat
     if(len(history)==0):
         return(1)
     else:
